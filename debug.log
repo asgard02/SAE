@@ -1,0 +1,5 @@
+
+> x
+Error in eval(ei, envir) : object 'x' not found
+Calls: source -> withVisible -> eval -> eval
+Execution halted

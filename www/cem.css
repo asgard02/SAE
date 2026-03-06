@@ -1,0 +1,975 @@
+/* ============================================================
+   CEM Rennes – Feuille de style principale
+   Dashboard Oncologie v3
+
+   Organisation :
+     1. Variables globales (couleurs CEM)
+     2. Page de connexion (glassmorphism)
+     3. Navbar & layout
+     4. Cartes KPI
+     5. Cards de graphiques
+     6. Tableaux DataTables (sans scrollbar)
+     7. Sidebar
+     8. Animations
+     9. Responsive mobile
+   ============================================================ */
+
+/* ──────────────────────────────────────────────────────────
+   1. VARIABLES GLOBALES
+   Les variables CSS --cem-* permettent de changer les couleurs
+   en un seul endroit si la charte graphique évolue.
+   ────────────────────────────────────────────────────────── */
+:root {
+  --cem-bleu: #005d92; /* Bleu officiel CEM (logo .st16) */
+  --cem-bleu-fonce: #003f64; /* Bleu foncé pour survols */
+  --cem-nuit: #001b35; /* Fond sombre (navbar, login) */
+  --cem-vert: #8cc63f; /* Vert accent (positif) */
+  --cem-orange: #e6a817; /* Orange avertissement */
+  --cem-rouge: #c0392b; /* Rouge critique / décès */
+  --cem-gris-clair: #f4f6f8; /* Fond sidebar */
+  --cem-gris-bord: #e1e5eb; /* Bordures légères */
+  --cem-texte: #2c3e50; /* Texte principal */
+  --cem-sous-texte: #6c757d; /* Texte secondaire */
+  --border-radius: 12px; /* Rayon des coins des cards */
+  --ombre-legere: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --ombre-moyenne: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ──────────────────────────────────────────────────────────
+   2. PAGE DE CONNEXION (glassmorphism)
+
+   "Glassmorphism" = effet verre givré :
+     - fond flou avec backdrop-filter
+     - semi-transparent (rgba)
+     - bordure blanche légère
+   ────────────────────────────────────────────────────────── */
+
+/* Fond plein écran qui recouvre tout */
+.login-overlay {
+  position: fixed;
+  inset: 0; /* équivalent : top:0; right:0; bottom:0; left:0 */
+  background: linear-gradient(
+    135deg,
+    var(--cem-nuit) 0%,
+    #004a75 40%,
+    var(--cem-bleu) 65%,
+    var(--cem-nuit) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Au-dessus de tout le reste */
+  overflow: hidden;
+}
+
+/* Cercles décoratifs en arrière-plan pour donner de la profondeur */
+.login-overlay::before,
+.login-overlay::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.login-overlay::before {
+  width: 600px;
+  height: 600px;
+  top: -150px;
+  left: -150px;
+}
+.login-overlay::after {
+  width: 500px;
+  height: 500px;
+  bottom: -100px;
+  right: -100px;
+}
+
+/* La carte de connexion centrale */
+.login-card {
+  background: rgba(255, 255, 255, 0.08); /* 8% d'opacité → effet verre */
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); /* Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 52px 44px 44px;
+  width: 420px;
+  max-width: 95vw; /* Responsive : jamais plus large que l'écran */
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  position: relative;
+  z-index: 1;
+}
+
+/* Logo CEM dans la page de connexion */
+.login-logo {
+  display: block;
+  width: 160px;
+  height: auto;
+  margin: 0 auto 20px;
+  filter: brightness(0) invert(1); /* Rendre le logo blanc sur fond sombre */
+  opacity: 0.92;
+}
+
+/* Titre sous le logo */
+.login-titre {
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* Sous-titre */
+.login-sous-titre {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  text-align: center;
+  margin-bottom: 32px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Ligne de séparation */
+.login-card hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 0 28px;
+}
+
+/* Labels des champs de saisie */
+.login-card label {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Icône + champ de saisie dans un groupe */
+.login-champ-groupe {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+/* Icône à gauche du champ */
+.login-icone {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Champs de texte */
+.login-card .form-control,
+.login-card input[type="text"],
+.login-card input[type="password"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  padding: 12px 14px 12px 42px !important; /* Espace pour l'icône gauche */
+  font-size: 0.92rem;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  width: 100%;
+}
+
+/* Placeholder (texte d'exemple dans le champ) */
+.login-card .form-control::placeholder,
+.login-card input[type="text"]::placeholder,
+.login-card input[type="password"]::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Focus : le champ devient plus visible quand l'utilisateur clique dessus */
+.login-card .form-control:focus,
+.login-card input[type="text"]:focus,
+.login-card input[type="password"]:focus {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: var(--cem-bleu) !important;
+  box-shadow: 0 0 0 3px rgba(0, 93, 146, 0.35) !important;
+  outline: none;
+}
+
+/* Bouton de connexion */
+.btn-login {
+  background: var(--cem-bleu) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 13px !important;
+  width: 100%;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0, 93, 146, 0.45);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-login:hover {
+  background: var(--cem-bleu-fonce) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 93, 146, 0.55);
+}
+
+.btn-login:active {
+  transform: translateY(0px);
+}
+
+/* Message d'erreur de connexion */
+.login-erreur {
+  color: #ff6b6b;
+  font-size: 0.82rem;
+  text-align: center;
+  min-height: 20px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* Pied de page discret */
+.login-footer {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.72rem;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* ──────────────────────────────────────────────────────────
+   3. NAVBAR & LAYOUT PRINCIPAL
+   ────────────────────────────────────────────────────────── */
+
+/* Fond de la barre de navigation */
+.navbar {
+  background-color: var(--cem-nuit) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 1.25rem;
+}
+
+/* Nom de l'application dans la navbar */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Logo dans la navbar */
+.navbar-brand img {
+  height: 28px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+/* Onglets de navigation */
+.navbar-nav .nav-link {
+  font-weight: 500;
+  font-size: 0.88rem;
+  padding: 0.65rem 1rem !important;
+  border-radius: 6px;
+  transition: background 0.18s;
+  letter-spacing: 0.01em;
+}
+
+.navbar-nav .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-nav .nav-link.active {
+  background: rgba(0, 93, 146, 0.45) !important;
+  font-weight: 600;
+}
+
+/* Badge utilisateur connecté (rôle affiché en haut à droite) */
+.badge-utilisateur {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Bouton de déconnexion */
+.btn-deconnexion {
+  background: rgba(192, 57, 43, 0.2) !important;
+  border: 1px solid rgba(192, 57, 43, 0.35) !important;
+  border-radius: 8px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px !important;
+  transition: background 0.2s;
+}
+
+.btn-deconnexion:hover {
+  background: rgba(192, 57, 43, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   4. CARTES KPI (Key Performance Indicators)
+   ────────────────────────────────────────────────────────── */
+
+/* KPI principal (grande card proéminente) */
+.kpi-card-principale {
+  border-radius: var(--border-radius);
+  box-shadow: var(--ombre-legere);
+  padding: 24px 22px;
+  background: #ffffff;
+  border: 1px solid var(--cem-gris-bord);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  cursor: default;
+}
+
+.kpi-card-principale:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-moyenne);
+}
+
+/* Ligne du haut de la KPI : icône à droite */
+.kpi-ligne-haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+/* Etiquette de la KPI (nom de l'indicateur) */
+.kpi-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--cem-sous-texte);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* Valeur numérique principale (grand nombre) */
+.kpi-valeur {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--cem-texte);
+}
+
+/* Icône décorative en haut à droite de la KPI */
+.kpi-icone {
+  font-size: 1.6rem;
+  opacity: 0.2;
+}
+
+/* KPI secondaire (petite, 2e rangée) */
+.kpi-card-secondaire {
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid var(--cem-gris-bord);
+}
+
+.kpi-card-secondaire .kpi-label {
+  font-size: 0.68rem;
+}
+
+.kpi-card-secondaire .kpi-valeur {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+/* ──────────────────────────────────────────────────────────
+   5. CARDS DE GRAPHIQUES
+   ────────────────────────────────────────────────────────── */
+
+/* Card standard avec ombre légère */
+.card {
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--cem-gris-bord) !important;
+  box-shadow: var(--ombre-legere) !important;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: var(--ombre-moyenne) !important;
+}
+
+/* En-tête de card */
+.card-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--cem-gris-bord) !important;
+  padding: 13px 18px !important;
+  font-weight: 700;
+  font-size: 0.87rem;
+  color: var(--cem-texte);
+  letter-spacing: 0.01em;
+}
+
+/* Bouton d'agrandissement (icône expand) */
+.btn-zoom {
+  padding: 3px 8px !important;
+  font-size: 0.75rem !important;
+  border-color: var(--cem-gris-bord) !important;
+  color: var(--cem-sous-texte) !important;
+  border-radius: 6px !important;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.btn-zoom:hover {
+  background: var(--cem-bleu) !important;
+  color: #ffffff !important;
+  border-color: var(--cem-bleu) !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   6. TABLEAUX DATATABLES (sans scrollbar horizontale)
+
+   Le problème original : scrollX = TRUE dans R créait
+   une barre de défilement horizontale visible sur PC
+   mais invisible sur mobile → confusion pour les utilisateurs.
+
+   Solution : on utilise l'extension Responsive + ces styles.
+   ────────────────────────────────────────────────────────── */
+
+/* Empêcher le défilement horizontal sur les tables */
+.dataTables_wrapper {
+  font-size: 0.85rem;
+  overflow-x: hidden !important; /* ← Pas de scrollbar horizontale */
+  width: 100% !important;
+}
+
+/* Les tableaux s'adaptent à la largeur disponible */
+.dataTables_wrapper table {
+  width: 100% !important;
+}
+
+/* Cellules : texte peut passer à la ligne si besoin */
+.dataTables_wrapper td,
+.dataTables_wrapper th {
+  white-space: normal !important; /* ← Permet le retour à la ligne */
+  word-wrap: break-word;
+  max-width: 180px;
+}
+
+/* En-têtes de colonnes */
+.dataTables_wrapper th {
+  background: var(--cem-gris-clair);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cem-sous-texte);
+  font-weight: 700;
+}
+
+/* Lignes alternées légères */
+table.dataTable.stripe tbody tr.odd {
+  background: #fafbfc;
+}
+
+/* Survol de ligne */
+table.dataTable.hover tbody tr:hover {
+  background: rgba(0, 93, 146, 0.05) !important;
+  cursor: pointer;
+}
+
+/* Info de pagination */
+.dataTables_info {
+  font-size: 0.78rem;
+  color: var(--cem-sous-texte);
+}
+
+/* Boutons de pagination */
+.dataTables_paginate .paginate_button {
+  border-radius: 6px !important;
+  font-size: 0.82rem !important;
+  padding: 3px 9px !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+  background: var(--cem-bleu) !important;
+  border-color: var(--cem-bleu) !important;
+  color: #ffffff !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   7. SIDEBAR (panneau de filtres à gauche)
+   ────────────────────────────────────────────────────────── */
+
+/* Fond de la sidebar */
+.bslib-sidebar-layout > .sidebar {
+  background: var(--cem-gris-clair) !important;
+  border-right: 1px solid var(--cem-gris-bord) !important;
+  padding: 16px !important;
+}
+
+/* Titre "Filtres" dans la sidebar */
+.sidebar-titre {
+  color: var(--cem-bleu);
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Labels des filtres */
+.form-label,
+label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cem-texte);
+}
+
+/* Inputs select et autres */
+.form-control,
+.form-select,
+.shiny-input-container input {
+  border-radius: 8px;
+  border: 1px solid var(--cem-gris-bord);
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--cem-bleu);
+  box-shadow: 0 0 0 3px rgba(0, 93, 146, 0.15);
+}
+
+/* Bouton réinitialiser les filtres */
+#reset_filters {
+  border-radius: 8px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  margin-top: 6px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+#reset_filters:hover {
+  background: var(--cem-bleu) !important;
+  color: #ffffff !important;
+  border-color: var(--cem-bleu) !important;
+}
+
+/* Résumé des données (nb patients, séjours) */
+.sidebar-resume {
+  font-size: 0.75rem;
+  color: var(--cem-sous-texte);
+  background: rgba(0, 93, 146, 0.06);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-left: 3px solid var(--cem-bleu);
+}
+
+/* ──────────────────────────────────────────────────────────
+   8. ANIMATIONS
+   ────────────────────────────────────────────────────────── */
+
+/* Animation d'entrée pour la carte de connexion */
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-card {
+  animation: apparaitre 0.5s ease-out both;
+}
+
+/* Animation "secousse" pour identifiants incorrects */
+@keyframes secousse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  30% {
+    transform: translateX(8px);
+  }
+  45% {
+    transform: translateX(-6px);
+  }
+  60% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  90% {
+    transform: translateX(3px);
+  }
+}
+
+.secousse {
+  animation: secousse 0.5s ease-in-out;
+}
+
+/* Transition douce pour les modales */
+.modal-dialog {
+  transition: transform 0.2s ease-out;
+}
+
+/* Spinner de chargement (couleur CEM) */
+.shiny-spinner-placeholder .load-container .loader {
+  border-top-color: var(--cem-bleu) !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   9. RESPONSIVE MOBILE
+
+   Sur mobile (écran < 768px) :
+     - Les cards s'empilent verticalement (Bootstrap le fait déjà)
+     - On réduit les paddings
+     - On s'assure qu'aucune barre de défilement n'apparaît
+   ────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Pas de défilement horizontal sur toute la page */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Carte de connexion réduite sur mobile */
+  .login-card {
+    padding: 36px 24px;
+    border-radius: 18px;
+  }
+
+  /* KPIs empilées */
+  .kpi-card-principale {
+    padding: 18px 16px;
+  }
+
+  .kpi-valeur {
+    font-size: 1.6rem;
+  }
+
+  /* Cacher les colonnes moins importantes dans les tables sur mobile */
+  /* (géré automatiquement par l'extension Responsive de DataTables) */
+
+  /* Navbar condensée */
+  .badge-utilisateur {
+    display: none; /* Masquer le badge sur petit écran */
+  }
+
+  /* Accueil responsive */
+  .accueil-hero {
+    padding: 40px 16px 30px !important;
+    margin: -16px -16px 20px !important;
+    border-radius: 0 0 20px 20px !important;
+  }
+
+  .accueil-hero-logo {
+    width: 80px !important;
+  }
+
+  .accueil-hero-titre {
+    font-size: 1.4rem !important;
+  }
+
+  .accueil-stats-bande {
+    flex-wrap: wrap;
+    gap: 12px !important;
+    padding: 16px !important;
+  }
+
+  .accueil-stat-item {
+    min-width: 120px;
+    flex: 1 1 45%;
+  }
+
+  .accueil-nav-card {
+    padding: 20px 16px !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   10. PAGE D'ACCUEIL (v2)
+   Hero, stats, grille de navigation cliquable
+   ────────────────────────────────────────────────────────── */
+
+@keyframes accueil-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes accueil-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.accueil-hero {
+  background: linear-gradient(135deg, var(--cem-nuit) 0%, var(--cem-bleu) 60%, var(--cem-nuit) 100%);
+  background-size: 200% 200%;
+  animation: accueil-gradient 10s ease infinite;
+  border-radius: 18px;
+  padding: 48px 32px 40px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.accueil-hero::before {
+  content: "";
+  position: absolute;
+  width: 400px; height: 400px;
+  top: -120px; right: -80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140,198,63,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.accueil-hero-contenu {
+  position: relative; z-index: 1;
+  text-align: center;
+  animation: accueil-fade-up 0.5s ease-out both;
+}
+
+.accueil-hero-logo {
+  display: block;
+  width: 90px; height: auto;
+  margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.accueil-hero-titre {
+  color: #FFF; font-size: 1.7rem; font-weight: 800; margin: 0 0 4px;
+}
+
+.accueil-hero-sous-titre {
+  color: rgba(255,255,255,0.50);
+  font-size: 0.78rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.accueil-hero-description {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.88rem; line-height: 1.55;
+  max-width: 480px; margin: 0 auto;
+}
+
+.accueil-stats-bande {
+  display: flex; justify-content: center; gap: 12px;
+  padding: 20px 16px; background: #FFF;
+  border-radius: 14px; border: 1px solid var(--cem-gris-bord);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  margin-bottom: 28px;
+  animation: accueil-fade-up 0.5s ease-out 0.1s both;
+}
+
+.accueil-stat-item { text-align: center; flex: 1; padding: 10px 6px; }
+
+.accueil-stat-icone {
+  font-size: 1.1rem; color: var(--cem-bleu); opacity: 0.4;
+  margin-bottom: 6px; display: block;
+}
+
+.accueil-stat-valeur {
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--cem-bleu); line-height: 1.2; margin-bottom: 2px;
+}
+
+.accueil-stat-label {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--cem-sous-texte);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.accueil-section-titre {
+  color: var(--cem-texte); font-size: 0.95rem; font-weight: 700;
+  margin-bottom: 16px; padding-left: 2px;
+  display: flex; align-items: center;
+  animation: accueil-fade-up 0.5s ease-out 0.2s both;
+}
+
+.accueil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  animation: accueil-fade-up 0.5s ease-out 0.25s both;
+}
+
+.accueil-grid > a,
+.accueil-grid > a:hover,
+.accueil-grid > a:focus,
+.accueil-grid > a:active {
+  text-decoration: none !important;
+  color: inherit !important;
+  outline: none !important;
+  display: block;
+}
+
+.accueil-nav-card {
+  background: #FFF;
+  border: 1px solid var(--cem-gris-bord);
+  border-radius: 14px;
+  padding: 22px 20px 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  position: relative; overflow: hidden; height: 100%;
+}
+
+.accueil-nav-card::before {
+  content: ""; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 14px 14px 0 0;
+}
+
+.accueil-nav-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.accueil-nav-card-1::before { background: var(--cem-bleu); }
+.accueil-nav-card-2::before { background: var(--cem-vert); }
+.accueil-nav-card-3::before { background: var(--cem-orange); }
+.accueil-nav-card-4::before { background: var(--cem-rouge); }
+.accueil-nav-card-5::before { background: #E67E22; }
+.accueil-nav-card-6::before { background: #8E44AD; }
+.accueil-nav-card-7::before { background: #2C3E50; }
+
+.accueil-nav-card-1:hover { border-color: var(--cem-bleu); }
+.accueil-nav-card-2:hover { border-color: var(--cem-vert); }
+.accueil-nav-card-3:hover { border-color: var(--cem-orange); }
+.accueil-nav-card-4:hover { border-color: var(--cem-rouge); }
+.accueil-nav-card-5:hover { border-color: #E67E22; }
+.accueil-nav-card-6:hover { border-color: #8E44AD; }
+.accueil-nav-card-7:hover { border-color: #2C3E50; }
+
+.accueil-nav-card-top {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 12px;
+}
+
+.accueil-nav-card-icon-wrap {
+  width: 44px; height: 44px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.accueil-nav-card:hover .accueil-nav-card-icon-wrap { transform: scale(1.08); }
+
+.accueil-nav-card-1 .accueil-nav-card-icon-wrap { background: rgba(0,93,146,0.08); }
+.accueil-nav-card-2 .accueil-nav-card-icon-wrap { background: rgba(140,198,63,0.10); }
+.accueil-nav-card-3 .accueil-nav-card-icon-wrap { background: rgba(230,168,23,0.10); }
+.accueil-nav-card-4 .accueil-nav-card-icon-wrap { background: rgba(192,57,43,0.08); }
+.accueil-nav-card-5 .accueil-nav-card-icon-wrap { background: rgba(230,126,34,0.08); }
+.accueil-nav-card-6 .accueil-nav-card-icon-wrap { background: rgba(142,68,173,0.08); }
+.accueil-nav-card-7 .accueil-nav-card-icon-wrap { background: rgba(44,62,80,0.08); }
+
+.accueil-nav-card-icon { font-size: 1.25rem; }
+
+.accueil-nav-card-1 .accueil-nav-card-icon { color: var(--cem-bleu); }
+.accueil-nav-card-2 .accueil-nav-card-icon { color: var(--cem-vert); }
+.accueil-nav-card-3 .accueil-nav-card-icon { color: var(--cem-orange); }
+.accueil-nav-card-4 .accueil-nav-card-icon { color: var(--cem-rouge); }
+.accueil-nav-card-5 .accueil-nav-card-icon { color: #E67E22; }
+.accueil-nav-card-6 .accueil-nav-card-icon { color: #8E44AD; }
+.accueil-nav-card-7 .accueil-nav-card-icon { color: #2C3E50; }
+
+.accueil-nav-card-arrow {
+  font-size: 0.85rem; color: var(--cem-sous-texte);
+  opacity: 0; transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.accueil-nav-card:hover .accueil-nav-card-arrow {
+  opacity: 0.6; transform: translateX(0);
+}
+
+.accueil-nav-card-titre {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--cem-texte); margin: 0 0 4px;
+}
+
+.accueil-nav-card-desc {
+  font-size: 0.75rem; color: var(--cem-sous-texte);
+  line-height: 1.45; margin: 0;
+}
+
+.accueil-footer {
+  text-align: center; color: var(--cem-sous-texte);
+  font-size: 0.72rem; padding: 20px 0 4px; margin-top: 20px;
+  border-top: 1px solid var(--cem-gris-bord);
+  animation: accueil-fade-up 0.5s ease-out 0.4s both;
+}
+
+@media (max-width: 768px) {
+  .accueil-hero { padding: 32px 16px 28px; border-radius: 12px; }
+  .accueil-hero-logo { width: 70px; }
+  .accueil-hero-titre { font-size: 1.3rem; }
+  .accueil-stats-bande { flex-wrap: wrap; gap: 8px; padding: 14px 10px; }
+  .accueil-stat-item { min-width: 110px; flex: 1 1 45%; }
+  .accueil-stat-valeur { font-size: 1.15rem; }
+  .accueil-grid { grid-template-columns: 1fr; gap: 10px; }
+  .accueil-nav-card { padding: 16px 14px; }
+}
+
+/* === Sidebar dynamiquement cachee sur l'accueil === */
+.hide-sidebar aside.bslib-sidebar,
+.hide-sidebar .bslib-sidebar-layout > aside,
+.hide-sidebar .bslib-sidebar-layout > .collapse-toggle,
+.hide-sidebar .sidebar-filtres {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0px !important;
+  min-width: 0px !important;
+}
+
+.hide-sidebar .bslib-sidebar-layout,
+.hide-sidebar .bslib-page-sidebar {
+  --bslib-sidebar-width: 0px !important;
+  grid-template-columns: 0px minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding-left: 0 !important;
+}
+
+.hide-sidebar .bslib-main-container,
+.hide-sidebar main {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+}
