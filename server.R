@@ -124,6 +124,36 @@ server <- function(input, output, session) {
     )
   })
 
+  # Nouveaux outputs pour les cartes d'accueil redesign
+  output$accueil_dms <- renderText({
+    paste0(round(mean(df$duree_sejour, na.rm = TRUE), 1), " jours")
+  })
+
+  output$accueil_survie <- renderText({
+    med <- tryCatch(
+      {
+        round(median(df_patients$mois_survie, na.rm = TRUE), 0)
+      },
+      error = function(e) "N/A"
+    )
+    paste0(med, " mois")
+  })
+
+  output$accueil_mortalite <- renderText({
+    paste0(round(mean(df_patients$evenement, na.rm = TRUE) * 100, 1), "%")
+  })
+
+  output$accueil_nb_dept <- renderText({
+    n <- tryCatch(
+      {
+        n_distinct(df$departement[!is.na(df$departement)])
+      },
+      error = function(e) 0
+    )
+    paste0(n, " d\u00e9partements")
+  })
+
+
   # ──────────────────────────────────────────────────────
   # SECTION 1c : NAVIGATION DEPUIS L'ACCUEIL
   # Chaque actionLink de la page d'accueil navigue
@@ -197,7 +227,7 @@ server <- function(input, output, session) {
           d <- d %>% filter(type_pec == input$filtre_pec)
         }
         if (input$filtre_diag != "Tous") {
-          d <- d %>% filter(groupe_cancer == input$filtre_diag)
+          d <- d %>% filter(diag_cancer == input$filtre_diag)
         }
         if (input$filtre_meta != "Tous") {
           d <- d %>% filter(metastase == input$filtre_meta)

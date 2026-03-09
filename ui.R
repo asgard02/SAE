@@ -50,11 +50,14 @@ login_ui <- function() {
       id = "login-card",
       class = "login-card",
 
-      # Logo CEM
-      tags$img(
-        src   = "logo.svg",
-        class = "login-logo",
-        alt   = "Logo CEM Rennes"
+      # Logo CEM (conteneur pour assurer l'affichage)
+      div(
+        class = "login-logo-wrap",
+        tags$img(
+          src   = "/logo.png",
+          class = "login-logo",
+          alt   = "Logo CEM Rennes"
+        )
       ),
 
       # Titre et sous-titre
@@ -222,11 +225,14 @@ sidebar_filtres <- function() {
 
 dashboard_ui <- function() {
   page_navbar(
+    id = "main_navbar",
     title = tags$span(
-      # Logo réduit dans la navbar
+      class = "navbar-brand-content",
       tags$img(
-        src = "logo.svg", height = "26px",
-        style = "margin-right:10px; filter:brightness(0) invert(1); opacity:0.88;"
+        src = "/logo.png",
+        alt = "Centre Eugène Marquis Rennes",
+        class = "navbar-logo-img",
+        style = "height:38px; width:auto; margin-right:12px; vertical-align:middle; object-fit:contain;"
       ),
       "Dashboard Oncologie"
     ),
@@ -250,11 +256,156 @@ dashboard_ui <- function() {
     sidebar = sidebar_filtres(),
 
     # ══════════════════════════════════════════════════
+    # ONGLET 0 : Accueil
+    # Page d'atterrissage avec hero, stats et navigation
+    # ══════════════════════════════════════════════════
+    nav_panel(
+      title = tags$span(tags$i(class = "fa-solid fa-house me-2"), "Accueil"),
+      value = "accueil",
+
+      # ── Hero ──────────────────────────────────────────────
+      div(
+        class = "accueil-hero",
+        div(
+          class = "accueil-hero-contenu",
+          tags$img(src = "/logo.png", class = "accueil-hero-logo", alt = "Logo CEM"),
+          tags$h1(class = "accueil-hero-titre", "Dashboard Oncologie"),
+          tags$p(class = "accueil-hero-sous-titre", "Centre Eugène Marquis · Rennes"),
+          tags$p(
+            class = "accueil-hero-description",
+            "Plateforme d'analyse des données cliniques oncologiques.",
+            tags$br(),
+            "Sélectionnez une section ci-dessous pour commencer."
+          )
+        )
+      ),
+
+      # ── Bande de chiffres clés ─────────────────────────────
+      div(
+        class = "accueil-stats-bande",
+        div(
+          class = "accueil-stat-item",
+          tags$i(class = "fa-solid fa-users accueil-stat-icone"),
+          div(class = "accueil-stat-valeur", textOutput("accueil_nb_patients", inline = TRUE)),
+          div(class = "accueil-stat-label", "Patients")
+        ),
+        div(
+          class = "accueil-stat-item",
+          tags$i(class = "fa-solid fa-hospital accueil-stat-icone"),
+          div(class = "accueil-stat-valeur", textOutput("accueil_nb_sejours", inline = TRUE)),
+          div(class = "accueil-stat-label", "Séjours")
+        ),
+        div(
+          class = "accueil-stat-item",
+          tags$i(class = "fa-solid fa-dna accueil-stat-icone"),
+          div(class = "accueil-stat-valeur", textOutput("accueil_nb_cancers", inline = TRUE)),
+          div(class = "accueil-stat-label", "Types de cancer")
+        ),
+        div(
+          class = "accueil-stat-item",
+          tags$i(class = "fa-solid fa-calendar-days accueil-stat-icone"),
+          div(class = "accueil-stat-valeur", textOutput("accueil_periode", inline = TRUE)),
+          div(class = "accueil-stat-label", "Période")
+        )
+      ),
+
+      # ── Section navigation ──────────────────────────────
+      div(
+        class = "accueil-section-titre",
+        tags$i(class = "fa-solid fa-compass me-2"),
+        "Accéder aux analyses"
+      ),
+
+      # ── Grille de liens cliquables ─────────────────────
+      div(
+        class = "accueil-grid",
+        actionLink("goto_vue", label = div(
+          class = "accueil-nav-card accueil-nav-card-1",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-gauge-high accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Vue d'ensemble"),
+          tags$p(class = "accueil-nav-card-desc", "Indicateurs clés, admissions, statut vital.")
+        )),
+        actionLink("goto_parcours", label = div(
+          class = "accueil-nav-card accueil-nav-card-2",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-route accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Parcours & Durées"),
+          tags$p(class = "accueil-nav-card-desc", "DMS, délais diagnostiques, prise en charge.")
+        )),
+        actionLink("goto_stats_cli", label = div(
+          class = "accueil-nav-card accueil-nav-card-3",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-chart-bar accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Statistiques Cliniques"),
+          tags$p(class = "accueil-nav-card-desc", "Cancers, comorbidités, pyramide des âges.")
+        )),
+        actionLink("goto_survie", label = div(
+          class = "accueil-nav-card accueil-nav-card-4",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-heart-pulse accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Analyse de Survie"),
+          tags$p(class = "accueil-nav-card-desc", "Kaplan-Meier, survie médiane par cancer.")
+        )),
+        actionLink("goto_risque", label = div(
+          class = "accueil-nav-card accueil-nav-card-5",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-triangle-exclamation accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Profils de Risque"),
+          tags$p(class = "accueil-nav-card-desc", "Mortalité, réadmissions, heatmap antécédents.")
+        )),
+        actionLink("goto_stats", label = div(
+          class = "accueil-nav-card accueil-nav-card-7",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-table accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Statistiques"),
+          tags$p(class = "accueil-nav-card-desc", "Tableaux récapitulatifs, DMS, volumes.")
+        )),
+        actionLink("goto_enrichi", label = div(
+          class = "accueil-nav-card accueil-nav-card-6",
+          div(
+            class = "accueil-nav-card-top",
+            div(class = "accueil-nav-card-icon-wrap", tags$i(class = "fa-solid fa-map-location-dot accueil-nav-card-icon")),
+            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
+          ),
+          tags$h3(class = "accueil-nav-card-titre", "Données Enrichies"),
+          tags$p(class = "accueil-nav-card-desc", "Géographie, stades TNM, OMS, protocoles.")
+        ))
+      ),
+
+      # ── Footer ───────────────────────────────────────────
+      div(
+        class = "accueil-footer",
+        tags$i(class = "fa-solid fa-shield-halved me-2"),
+        paste0("Centre Eugène Marquis · Rennes · Données anonymisées · ", format(Sys.Date(), "%Y"))
+      )
+    ),
+
+    # ══════════════════════════════════════════════════
     # ONGLET 1 : Vue d'ensemble
     # Indicateurs clés + évolution + table récente
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-gauge-high me-2"), "Vue d'ensemble"),
+      value = "vue_ensemble",
 
       # ── 4 KPIs principaux ────────────────────────────
       layout_columns(
@@ -304,6 +455,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-route me-2"), "Parcours & Durées"),
+      value = "parcours",
       layout_columns(
         col_widths = c(6, 6),
         card(
@@ -334,6 +486,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-chart-bar me-2"), "Statistiques Cliniques"),
+      value = "stats_cliniques",
       layout_columns(
         col_widths = c(6, 6),
         # Cancer bar (plotly interactif → clic pour cross-filter)
@@ -365,6 +518,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-heart-pulse me-2"), "Analyse de Survie"),
+      value = "survie",
       layout_columns(
         col_widths = c(6, 6),
         card(
@@ -395,6 +549,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-triangle-exclamation me-2"), "Profils de Risque"),
+      value = "risque",
       layout_columns(
         col_widths = c(6, 6),
         card(
@@ -425,6 +580,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-table me-2"), "Statistiques"),
+      value = "statistiques",
       layout_columns(
         col_widths = c(6, 6),
         card(
@@ -458,6 +614,7 @@ dashboard_ui <- function() {
     # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-map-location-dot me-2"), "Données Enrichies"),
+      value = "enrichies",
       layout_columns(
         col_widths = c(6, 6),
         card(

@@ -471,7 +471,7 @@ login_ui <- function() {
     div(
       id = "login-card",
       class = "login-card",
-      tags$img(src = "logo.svg", class = "login-logo", alt = "Logo CEM Rennes"),
+      tags$img(src = "logo.png", class = "login-logo", alt = "Logo CEM Rennes"),
       div(class = "login-titre", "Dashboard Oncologie"),
       div(class = "login-sous-titre", "Centre Eugene Marquis - Rennes"),
       hr(),
@@ -569,350 +569,771 @@ dashboard_ui <- function() {
   page_navbar(
     id = "main_navbar",
     title = tags$span(
+      class = "navbar-brand-content",
       tags$img(
-        src = "logo.svg", height = "26px",
-        style = "margin-right:10px; filter:brightness(0) invert(1); opacity:0.88;"
+        src = "logo.png", height = "26px",
+        style = "margin-right:10px; opacity:0.95;"
       ),
       "Dashboard Oncologie"
     ),
     theme = theme_cem_bslib,
     navbar_options = navbar_options(bg = col_dark, theme = "dark"),
     header = tagList(
-      tags$link(
-        rel = "stylesheet",
-        href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      # Utilisation de tags$head pour forcer l'inclusion dans l'en-tête HTML
+      tags$head(
+        tags$link(
+          rel = "stylesheet",
+          href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        ),
+        # On ajoute un 'version' pour forcer le navigateur à recharger le CSS
+        tags$link(rel = "stylesheet", type = "text/css", href = paste0("cem.css?v=", as.numeric(Sys.time()))),
       ),
-      tags$link(rel = "stylesheet", type = "text/css", href = "cem.css"),
       useShinyjs()
     ),
     sidebar = sidebar_filtres(),
 
     # ══════════════════════════════════════════════════
-    # PAGE D'ACCUEIL
-    # Page d'atterrissage avec hero, stats rapides et navigation
+    # PAGE D'ACCUEIL — Fond bleu nuit, 6 cartes en grille 3x2
     # ══════════════════════════════════════════════════
     nav_panel(
-      title = tags$span(tags$i(class = "fa-solid fa-house me-2"), "Accueil"),
+      title = tags$span(tags$i(class = "fa-solid fa-house me-2"), "Hub"),
       value = "accueil",
-
-      # ── Hero ──────────────────────────────────────────────
       div(
-        class = "accueil-hero",
+        class = "accueil-fullpage",
+
+        # ── Titre principal ──────────────────────────────
         div(
-          class = "accueil-hero-contenu",
-          tags$img(src = "logo.svg", class = "accueil-hero-logo", alt = "Logo CEM"),
-          tags$h1(class = "accueil-hero-titre", "Dashboard Oncologie"),
-          tags$p(class = "accueil-hero-sous-titre", "Centre Eugene Marquis \u00b7 Rennes"),
-          tags$p(
-            class = "accueil-hero-description",
-            "Plateforme d'analyse des donnees cliniques oncologiques.",
-            tags$br(),
-            "Selectionnez une section ci-dessous pour commencer."
-          )
+          class = "accueil-titre-section",
+          tags$h1("Centre Eug\u00e8ne Marquis")
+        ),
+        div(
+          class = "accueil-sous-titre",
+          "S\u00e9lectionnez une section pour commencer l'analyse"
+        ),
+
+        # ── Grille de 6 cartes ─────────────────────────
+        div(
+          class = "accueil-cards-grid",
+
+          # Card 1 — Vue d'Ensemble
+          actionLink("goto_vue", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-green",
+              tags$i(class = "fa-solid fa-gauge-high")
+            ),
+            div(class = "accueil-card-titre", "Vue d'Ensemble"),
+            div(class = "accueil-card-desc", "KPIs, admissions mensuelles, statut vital"),
+            div(
+              class = "accueil-card-stat stat-green",
+              textOutput("accueil_nb_patients", inline = TRUE)
+            )
+          )),
+
+          # Card 2 — Parcours Patient
+          actionLink("goto_parcours", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-cyan",
+              tags$i(class = "fa-solid fa-route")
+            ),
+            div(class = "accueil-card-titre", "Parcours Patient"),
+            div(class = "accueil-card-desc", "Dur\u00e9es de s\u00e9jour, d\u00e9lais, trajectoires"),
+            div(
+              class = "accueil-card-stat stat-cyan",
+              textOutput("accueil_dms", inline = TRUE)
+            )
+          )),
+
+          # Card 3 — Analyse de Survie
+          actionLink("goto_survie", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-rose",
+              tags$i(class = "fa-solid fa-heart-pulse")
+            ),
+            div(class = "accueil-card-titre", "Analyse de Survie"),
+            div(class = "accueil-card-desc", "Kaplan-Meier, survie m\u00e9diane par cancer"),
+            div(
+              class = "accueil-card-stat stat-rose",
+              textOutput("accueil_survie", inline = TRUE)
+            )
+          )),
+
+          # Card 4 — Profils de Risque
+          actionLink("goto_risque", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-orange",
+              tags$i(class = "fa-solid fa-triangle-exclamation")
+            ),
+            div(class = "accueil-card-titre", "Profils de Risque"),
+            div(class = "accueil-card-desc", "Mortalit\u00e9, r\u00e9admission, heatmaps"),
+            div(
+              class = "accueil-card-stat stat-orange",
+              textOutput("accueil_mortalite", inline = TRUE)
+            )
+          )),
+
+          # Card 5 — Statistiques Cliniques
+          actionLink("goto_stats_cli", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-bleu",
+              tags$i(class = "fa-solid fa-chart-bar")
+            ),
+            div(class = "accueil-card-titre", "Statistiques Cliniques"),
+            div(class = "accueil-card-desc", "Cancers, comorbidit\u00e9s, pyramide des \u00e2ges"),
+            div(
+              class = "accueil-card-stat stat-bleu",
+              textOutput("accueil_nb_sejours", inline = TRUE)
+            )
+          )),
+
+          # Card 6 — Donnees Enrichies
+          actionLink("goto_enrichi", label = div(
+            class = "accueil-card",
+            div(
+              class = "accueil-card-icon icon-violet",
+              tags$i(class = "fa-solid fa-map-location-dot")
+            ),
+            div(class = "accueil-card-titre", "Donn\u00e9es Enrichies"),
+            div(class = "accueil-card-desc", "G\u00e9ographie, OMS, IMC, tabac, protocoles"),
+            div(
+              class = "accueil-card-stat stat-violet",
+              textOutput("accueil_nb_dept", inline = TRUE)
+            )
+          ))
+        ),
+
+        # ── Footer ───────────────────────────────────
+        div(
+          class = "accueil-footer",
+          paste0("Acc\u00e8s r\u00e9serv\u00e9 au personnel m\u00e9dical \u00b7 CEM Rennes \u00b7 ", format(Sys.Date(), "%Y"))
         )
-      ),
-
-      # ── Section navigation ──────────────────────────────
-      div(
-        class = "accueil-section-titre",
-        tags$i(class = "fa-solid fa-compass me-2"),
-        "Acceder aux analyses"
-      ),
-
-      # ── Grille de liens cliquables ─────────────────────
-      div(
-        class = "accueil-grid",
-        actionLink("goto_vue", label = div(
-          class = "accueil-nav-card accueil-nav-card-1",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-gauge-high accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Vue d'ensemble"),
-          tags$p(class = "accueil-nav-card-desc", "Indicateurs cles, admissions, statut vital.")
-        )),
-        actionLink("goto_parcours", label = div(
-          class = "accueil-nav-card accueil-nav-card-2",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-route accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Parcours & Durees"),
-          tags$p(class = "accueil-nav-card-desc", "DMS, delais diagnostiques, prise en charge.")
-        )),
-        actionLink("goto_stats_cli", label = div(
-          class = "accueil-nav-card accueil-nav-card-3",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-chart-bar accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Statistiques Cliniques"),
-          tags$p(class = "accueil-nav-card-desc", "Cancers, comorbidites, pyramide des ages.")
-        )),
-        actionLink("goto_survie", label = div(
-          class = "accueil-nav-card accueil-nav-card-4",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-heart-pulse accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Analyse de Survie"),
-          tags$p(class = "accueil-nav-card-desc", "Kaplan-Meier, survie mediane par cancer.")
-        )),
-        actionLink("goto_risque", label = div(
-          class = "accueil-nav-card accueil-nav-card-5",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-triangle-exclamation accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Profils de Risque"),
-          tags$p(class = "accueil-nav-card-desc", "Mortalite, readmissions, heatmap antecedents.")
-        )),
-        actionLink("goto_stats", label = div(
-          class = "accueil-nav-card accueil-nav-card-7",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-table accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Statistiques"),
-          tags$p(class = "accueil-nav-card-desc", "Tableaux recapitulatifs, DMS, volumes.")
-        )),
-        actionLink("goto_enrichi", label = div(
-          class = "accueil-nav-card accueil-nav-card-6",
-          div(
-            class = "accueil-nav-card-top",
-            div(
-              class = "accueil-nav-card-icon-wrap",
-              tags$i(class = "fa-solid fa-map-location-dot accueil-nav-card-icon")
-            ),
-            tags$i(class = "fa-solid fa-arrow-right accueil-nav-card-arrow")
-          ),
-          tags$h3(class = "accueil-nav-card-titre", "Donnees Enrichies"),
-          tags$p(class = "accueil-nav-card-desc", "Geographie, stades TNM, OMS, protocoles.")
-        ))
-      ),
-
-      # ── Footer ───────────────────────────────────────────
-      div(
-        class = "accueil-footer",
-        tags$i(class = "fa-solid fa-shield-halved me-2"),
-        paste0("Centre Eugene Marquis \u00b7 Rennes \u00b7 Donnees anonymisees \u00b7 ", format(Sys.Date(), "%Y"))
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 1 : Vue d'ensemble
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-gauge-high me-2"), "Vue d'ensemble"),
       value = "vue_ensemble",
-      layout_columns(
-        col_widths = c(3, 3, 3, 3),
-        kpi_box_principal("Patients uniques", "kpi_patients", "users", col_primary),
-        kpi_box_principal("Sejours totaux", "kpi_sejours", "hospital", col_accent),
-        kpi_box_principal("DMS (jours)", "kpi_dms", "clock", col_warn),
-        kpi_box_principal("Taux de mortalite", "kpi_mortalite", "heart-pulse", col_danger)
-      ), br(),
-      layout_columns(
-        col_widths = c(3, 3, 3, 3),
-        kpi_box_secondaire("Age moyen (ans)", "kpi_age", "cake-candles", col_primary),
-        kpi_box_secondaire("Taux M1", "kpi_taux_meta", "virus", col_danger),
-        kpi_box_secondaire("Taux readmission", "kpi_readmis", "arrows-rotate", col_warn),
-        kpi_box_secondaire("Delai diag->admit", "kpi_delai", "calendar-days", col_accent)
-      ), br(),
-      layout_columns(
-        col_widths = c(8, 4),
-        card(
-          card_header(card_header_with_zoom("Evolution des Admissions Mensuelles", "timeline_plot")),
-          spin(plotlyOutput("timeline_plot", height = "320px"))
+      div(
+        class = "content-page-wrapper",
+        # Section title bar
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-gauge-high"),
+          "Vue d'ensemble"
         ),
-        card(
-          card_header(card_header_with_zoom("Statut Vital des Patients", "status_plot")),
-          spin(plotlyOutput("status_plot", height = "320px"))
+        # Filtres bandeau
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_vue",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_vue",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_vue",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_vue",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
+        ),
+        # Contenu
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(3, 3, 3, 3),
+            kpi_box_principal("Patients uniques", "kpi_patients", "users", col_primary),
+            kpi_box_principal("Sejours totaux", "kpi_sejours", "hospital", col_accent),
+            kpi_box_principal("DMS (jours)", "kpi_dms", "clock", col_warn),
+            kpi_box_principal("Taux de mortalite", "kpi_mortalite", "heart-pulse", col_danger)
+          ), br(),
+          layout_columns(
+            col_widths = c(3, 3, 3, 3),
+            kpi_box_secondaire("Age moyen (ans)", "kpi_age", "cake-candles", col_primary),
+            kpi_box_secondaire("Taux M1", "kpi_taux_meta", "virus", col_danger),
+            kpi_box_secondaire("Taux readmission", "kpi_readmis", "arrows-rotate", col_warn),
+            kpi_box_secondaire("Delai diag->admit", "kpi_delai", "calendar-days", col_accent)
+          ), br(),
+          layout_columns(
+            col_widths = c(8, 4),
+            card(
+              card_header(card_header_with_zoom("Evolution des Admissions Mensuelles", "timeline_plot")),
+              spin(plotlyOutput("timeline_plot", height = "320px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Statut Vital des Patients", "status_plot")),
+              spin(plotlyOutput("status_plot", height = "320px"))
+            )
+          ),
+          card(card_header("Sejours Recents"), spin(DTOutput("patients_table")))
         )
-      ),
-      card(card_header("Sejours Recents"), spin(DTOutput("patients_table")))
+      )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 2 : Parcours & Durees
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-route me-2"), "Parcours & Durees"),
       value = "parcours",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("DMS par Type de Prise en Charge", "los_boxplot")),
-          spin(plotOutput("los_boxplot", height = "380px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-route"),
+          "Parcours Patient"
         ),
-        card(
-          card_header(card_header_with_zoom("Delai Diagnostic -> Admission (mois)", "tta_hist")),
-          spin(plotOutput("tta_hist", height = "380px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Age x Duree de Sejour (par Metastase)", "age_los_scatter")),
-          spin(plotOutput("age_los_scatter", height = "380px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_parcours",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_parcours",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_parcours",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_parcours",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
         ),
-        card(
-          card_header(card_header_with_zoom("Categories de Duree de Sejour par Sexe", "los_cat_plot")),
-          spin(plotOutput("los_cat_plot", height = "380px"))
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("DMS par Type de Prise en Charge", "los_boxplot")),
+              spin(plotOutput("los_boxplot", height = "380px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Delai Diagnostic -> Admission (mois)", "tta_hist")),
+              spin(plotOutput("tta_hist", height = "380px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Age x Duree de Sejour (par Metastase)", "age_los_scatter")),
+              spin(plotOutput("age_los_scatter", height = "380px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Categories de Duree de Sejour par Sexe", "los_cat_plot")),
+              spin(plotOutput("los_cat_plot", height = "380px"))
+            )
+          )
         )
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 3 : Statistiques Cliniques
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-chart-bar me-2"), "Statistiques Cliniques"),
       value = "stats_cliniques",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Cancers Principaux - Top 10", "cancer_bar_plot")),
-          spin(plotlyOutput("cancer_bar_plot", height = "380px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-chart-bar"),
+          "Statistiques Cliniques"
         ),
-        card(
-          card_header(card_header_with_zoom("Comorbidites Associees - Top 10", "assoc_bar_plot")),
-          spin(plotOutput("assoc_bar_plot", height = "380px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Pyramide des Ages (Hommes / Femmes)", "age_pyramid")),
-          spin(plotOutput("age_pyramid", height = "380px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_stats",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_stats",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_stats",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_stats",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
         ),
-        card(
-          card_header(card_header_with_zoom("Repartition M0 / M1 par Cancer", "meta_by_cancer")),
-          spin(plotOutput("meta_by_cancer", height = "380px"))
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Cancers Principaux - Top 10", "cancer_bar_plot")),
+              spin(plotlyOutput("cancer_bar_plot", height = "380px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Comorbidites Associees - Top 10", "assoc_bar_plot")),
+              spin(plotOutput("assoc_bar_plot", height = "380px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Pyramide des Ages (Hommes / Femmes)", "age_pyramid")),
+              spin(plotOutput("age_pyramid", height = "380px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Repartition M0 / M1 par Cancer", "meta_by_cancer")),
+              spin(plotOutput("meta_by_cancer", height = "380px"))
+            )
+          )
         )
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 4 : Analyse de Survie
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-heart-pulse me-2"), "Analyse de Survie"),
       value = "survie",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Kaplan-Meier Global", "km_global")),
-          spin(plotOutput("km_global", height = "420px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-heart-pulse"),
+          "Analyse de Survie"
         ),
-        card(
-          card_header(card_header_with_zoom("KM : M0 vs M1", "km_meta")),
-          spin(plotOutput("km_meta", height = "420px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("KM : Homme vs Femme", "km_gender")),
-          spin(plotOutput("km_gender", height = "420px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_survie",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_survie",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_survie",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_survie",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
         ),
-        card(
-          card_header(card_header_with_zoom("Survie Mediane par Cancer (Top 8)", "median_survival_bar")),
-          spin(plotOutput("median_survival_bar", height = "420px"))
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Courbe de Survie Globale (Kaplan-Meier)", "km_global")),
+              spin(plotOutput("km_global", height = "420px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Survie : M0 vs M1", "km_meta")),
+              spin(plotOutput("km_meta", height = "420px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("KM : Homme vs Femme", "km_gender")),
+              spin(plotOutput("km_gender", height = "420px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Survie Mediane par Cancer (Top 8)", "median_survival_bar")),
+              spin(plotOutput("median_survival_bar", height = "420px"))
+            )
+          )
         )
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 5 : Profils de Risque
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-triangle-exclamation me-2"), "Profils de Risque"),
       value = "risque",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Heatmap : Antecedents x Cancer", "heatmap_risk")),
-          spin(plotOutput("heatmap_risk", height = "400px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-triangle-exclamation"),
+          "Profils de Risque"
         ),
-        card(
-          card_header(card_header_with_zoom("Mortalite par Cancer & Tranche d'Age", "mortality_age_cancer")),
-          spin(plotOutput("mortality_age_cancer", height = "400px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Taux de Readmission par Cancer", "readmit_by_cancer")),
-          spin(plotOutput("readmit_by_cancer", height = "400px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_risque",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_risque",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_risque",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_risque",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
         ),
-        card(
-          card_header(card_header_with_zoom("Distribution du Nombre de Sejours", "stays_hist")),
-          spin(plotOutput("stays_hist", height = "400px"))
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Heatmap : Antecedents x Cancer", "heatmap_risk")),
+              spin(plotOutput("heatmap_risk", height = "400px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Mortalite par Cancer & Tranche d'Age", "mortality_age_cancer")),
+              spin(plotOutput("mortality_age_cancer", height = "400px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Taux de Readmission par Cancer", "readmit_by_cancer")),
+              spin(plotOutput("readmit_by_cancer", height = "400px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Distribution du Nombre de Sejours", "stays_hist")),
+              spin(plotOutput("stays_hist", height = "400px"))
+            )
+          )
         )
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 6 : Statistiques
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-table me-2"), "Statistiques"),
       value = "statistiques",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(card_header("Resume Statistique par Cancer"), spin(DTOutput("stats_table"))),
-        card(
-          card_header(card_header_with_zoom("DMS Mediane & IQR par Prise en Charge", "dms_ci_plot")),
-          spin(plotOutput("dms_ci_plot", height = "400px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Volume d'Activite par PEC & Annee", "pec_year_heatmap")),
-          spin(plotOutput("pec_year_heatmap", height = "400px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-table"),
+          "Statistiques"
         ),
-        card(
-          card_header(card_header_with_zoom("Distribution Delai Diag -> Deces par Cancer", "tta_death_plot")),
-          spin(plotOutput("tta_death_plot", height = "400px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_statstab",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_statstab",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_statstab",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_statstab",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
+        ),
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(card_header("Resume Statistique par Cancer"), spin(DTOutput("stats_table"))),
+            card(
+              card_header(card_header_with_zoom("DMS Mediane & IQR par Prise en Charge", "dms_ci_plot")),
+              spin(plotOutput("dms_ci_plot", height = "400px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Volume d'Activite par PEC & Annee", "pec_year_heatmap")),
+              spin(plotOutput("pec_year_heatmap", height = "400px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Distribution Delai Diag -> Deces par Cancer", "tta_death_plot")),
+              spin(plotOutput("tta_death_plot", height = "400px"))
+            )
+          )
         )
       )
     ),
+
+    # ══════════════════════════════════════════════════
+    # ONGLET 7 : Donnees Enrichies
+    # ══════════════════════════════════════════════════
     nav_panel(
       title = tags$span(tags$i(class = "fa-solid fa-map-location-dot me-2"), "Donnees Enrichies"),
       value = "enrichies",
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Patients par Departement (Bretagne)", "dept_bar")),
-          spin(plotlyOutput("dept_bar", height = "350px"))
+      div(
+        class = "content-page-wrapper",
+        div(
+          class = "section-title-bar",
+          tags$i(class = "fa-solid fa-map-location-dot"),
+          "Donn\u00e9es Enrichies"
         ),
-        card(
-          card_header(card_header_with_zoom("Distribution des Stades TNM par Cancer", "stade_bar")),
-          spin(plotOutput("stade_bar", height = "350px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Score OMS par Tranche d'Age (Heatmap)", "oms_heatmap")),
-          spin(plotOutput("oms_heatmap", height = "350px"))
+        div(
+          class = "filtres-bandeau",
+          div(
+            class = "filtres-bandeau-titre",
+            tags$i(class = "fa-solid fa-sliders"), "Filtres"
+          ),
+          div(
+            class = "filtres-bandeau-row",
+            div(
+              class = "filtre-group",
+              tags$label("Diagnostic"),
+              selectInput("filtre_diag_enrichi",
+                label = NULL,
+                choices = c("Tous", sort(unique(df$groupe_cancer[!is.na(df$groupe_cancer)]))),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("Stade TNM"),
+              selectInput("filtre_stade_enrichi",
+                label = NULL,
+                choices = c("Tous", "I", "II", "III", "IV"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtre-group",
+              tags$label("M\u00e9tastase"),
+              selectInput("filtre_meta_enrichi",
+                label = NULL,
+                choices = c("Tous", "M0", "M1"),
+                width = "100%"
+              )
+            ),
+            div(
+              class = "filtres-bandeau-actions",
+              actionButton("reset_enrichi",
+                label = tags$span(
+                  tags$i(class = "fa-solid fa-rotate-left me-1"), "R\u00e9initialiser"
+                ),
+                class = "btn-reinitialiser"
+              )
+            )
+          )
         ),
-        card(
-          card_header(card_header_with_zoom("IMC Moyen par Type de Prise en Charge", "imc_plot")),
-          spin(plotOutput("imc_plot", height = "350px"))
-        )
-      ),
-      layout_columns(
-        col_widths = c(6, 6),
-        card(
-          card_header(card_header_with_zoom("Protocoles Therapeutiques - Top 12", "protocole_bar")),
-          spin(plotlyOutput("protocole_bar", height = "350px"))
-        ),
-        card(
-          card_header(card_header_with_zoom("Tabagisme (paquets-annees) par Cancer", "tabac_boxplot")),
-          spin(plotOutput("tabac_boxplot", height = "350px"))
+        div(
+          class = "content-body",
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Patients par Departement (Bretagne)", "dept_bar")),
+              spin(plotlyOutput("dept_bar", height = "350px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Distribution des Stades TNM par Cancer", "stade_bar")),
+              spin(plotOutput("stade_bar", height = "350px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Score OMS par Tranche d'Age (Heatmap)", "oms_heatmap")),
+              spin(plotOutput("oms_heatmap", height = "350px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("IMC Moyen par Type de Prise en Charge", "imc_plot")),
+              spin(plotOutput("imc_plot", height = "350px"))
+            )
+          ),
+          layout_columns(
+            col_widths = c(6, 6),
+            card(
+              card_header(card_header_with_zoom("Protocoles Therapeutiques - Top 12", "protocole_bar")),
+              spin(plotlyOutput("protocole_bar", height = "350px"))
+            ),
+            card(
+              card_header(card_header_with_zoom("Tabagisme (paquets-annees) par Cancer", "tabac_boxplot")),
+              spin(plotOutput("tabac_boxplot", height = "350px"))
+            )
+          )
         )
       )
     ),
@@ -929,7 +1350,7 @@ dashboard_ui <- function() {
           label = tags$span(tags$i(
             class = "fa-solid fa-right-from-bracket",
             style = "margin-right:5px;"
-          ), "Deconnexion"),
+          ), "D\u00e9co"),
           class = "btn-deconnexion"
         )
       )
